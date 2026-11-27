@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block titre %}Catalogue{% endblock %}
+{% block contenu %}
+<h1>Le catalogue</h1>
+<p class="sous-titre">Cherchez par titre, auteur ou ISBN. Un badge vert indique qu'un exemplaire est libre.</p>
+
+<form class="carte" method="get">
+  <div class="champs">
+    <div><label>Recherche</label><input name="q" value="{{ terme }}" placeholder="ex : Hugo, bases de données, 978000011…"></div>
+    <div><label>Catégorie</label>
+      <select name="cat"><option value="">Toutes</option>
+        {% for c in cats %}<option value="{{ c.id_categorie }}" {{ 'selected' if cat == c.id_categorie|string }}>{{ c.libelle }}</option>{% endfor %}
+      </select></div>
+    <div><label class="case"><input type="checkbox" name="dispo" value="1" {{ 'checked' if dispo == '1' }}> Disponibles seulement</label></div>
+    <div><button class="btn">Chercher</button> <a class="btn doux" href="{{ url_for('catalogue') }}">Effacer</a></div>
+  </div>
+</form>
+
+{% if livres %}
+<div class="rayon">
+  {% for l in livres %}
+  <div class="livre-carte dos{{ loop.index0 % 5 }}">
+    <h3><a href="{{ url_for('livre', isbn=l.isbn) }}">{{ l.titre }}</a></h3>
+    <div class="meta">{{ l.auteurs or 'Auteur non renseigné' }}</div>
+    <div class="meta">{{ l.libelle }} · {{ l.nom_editeur }} · {{ l.annee_publication or '—' }}</div>
+    <div class="bas">
+      <span class="meta">ISBN {{ l.isbn }}</span>
+      {% if l.nb_dispo > 0 %}<span class="badge b-ok">{{ l.nb_dispo }}/{{ l.nb_ex }} disponible{{ 's' if l.nb_dispo > 1 }}</span>
+      {% else %}<span class="badge b-non">Indisponible</span>{% endif %}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}<div class="carte vide">Aucun livre ne correspond à votre recherche 🔎</div>{% endif %}
+{% endblock %}

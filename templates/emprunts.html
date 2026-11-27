@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block titre %}Emprunts{% endblock %}
+{% block contenu %}
+<h1>Emprunts &amp; retours</h1>
+<p class="sous-titre">Trois emprunts maximum par adhérent. Seuls les exemplaires libres sont proposés.</p>
+
+<form class="carte" method="post">
+  <h2>📖 Nouvel emprunt</h2>
+  <div class="champs">
+    <div><label>Adhérent *</label><select name="num_adherent" required>
+      {% for a in adherents %}<option value="{{ a.num_adherent }}">{{ a.nom }} {{ a.prenom }} (n° {{ a.num_adherent }})</option>{% endfor %}</select></div>
+    <div><label>Exemplaire disponible *</label><select name="code_exemplaire" required>
+      {% for d in dispo %}<option value="{{ d.code_exemplaire }}">{{ d.code_exemplaire }} — {{ d.titre }} ({{ d.etat_physique }})</option>{% endfor %}</select></div>
+    <div><label>Date d'emprunt</label><input type="date" name="date_emprunt" value="{{ today }}" required></div>
+    <div><label>Retour prévu</label><input type="date" name="date_retour_prevue" value="{{ retour_defaut }}" required></div>
+    <div><button class="btn">Enregistrer l'emprunt</button></div>
+  </div>
+</form>
+
+<p class="ligne">
+  {% for k, t in [('cours','En cours'),('retard','En retard'),('rendus','Rendus'),('tous','Tous')] %}
+  <a class="btn petit {{ '' if f == k else 'doux' }}" href="{{ url_for('emprunts', f=k) }}">{{ t }}</a>{% endfor %}
+</p>
+
+<div class="carte scroll">
+  <table><thead><tr><th>N°</th><th>Adhérent</th><th>Livre</th><th>Exemplaire</th><th>Emprunté</th><th>Prévu</th><th>Rendu</th><th></th></tr></thead><tbody>
+  {% for m in rows %}<tr>
+    <td>{{ m.id_emprunt }}</td><td><a href="{{ url_for('adherent', num=m.num_adherent) }}">{{ m.prenom }} {{ m.nom }}</a></td>
+    <td><a href="{{ url_for('livre', isbn=m.isbn) }}">{{ m.titre }}</a></td><td>{{ m.code_exemplaire }}</td>
+    <td>{{ m.date_emprunt | fr }}</td><td>{{ m.date_retour_prevue | fr }}</td>
+    <td>{% if m.date_retour_effective %}{{ m.date_retour_effective | fr }}
+        {% elif m.date_retour_prevue < today %}<span class="badge b-non">en retard</span>
+        {% else %}<span class="badge b-attente">en cours</span>{% endif %}</td>
+    <td>{% if not m.date_retour_effective %}<form method="post" action="{{ url_for('emprunt_retour', id_emprunt=m.id_emprunt) }}"><button class="btn petit sauge">Rendre</button></form>{% endif %}</td></tr>
+  {% else %}<tr><td colspan="8" class="vide">Rien à afficher ici 🌿</td></tr>{% endfor %}
+  </tbody></table>
+</div>
+{% endblock %}

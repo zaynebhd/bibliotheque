@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block titre %}Adhérents{% endblock %}
+{% block contenu %}
+<h1>Nos adhérents</h1>
+<p class="sous-titre">Étudiants, enseignants et autres lecteurs inscrits à la bibliothèque.</p>
+
+<form class="carte" method="post">
+  <h2>🙋 Nouvelle inscription</h2>
+  <div class="champs">
+    <div><label>Nom *</label><input name="nom" required></div>
+    <div><label>Prénom *</label><input name="prenom" required></div>
+    <div><label>Téléphone</label><input name="telephone"></div>
+    <div><label>E-mail</label><input name="email" type="email"></div>
+    <div><label>Date d'inscription</label><input name="date_inscription" type="date" value="{{ today }}"></div>
+    <div><label>Type</label><select name="type_adherent"><option>étudiant</option><option>enseignant</option><option>autre</option></select></div>
+    <div><button class="btn">Inscrire</button></div>
+  </div>
+</form>
+
+<form class="carte" method="get"><div class="ligne">
+  <input name="q" value="{{ terme }}" placeholder="Rechercher un nom, un prénom, un e-mail…" style="flex:1">
+  <button class="btn">Chercher</button></div></form>
+
+<div class="carte scroll">
+  <table><thead><tr><th>N°</th><th>Nom</th><th>Contact</th><th>Type</th><th>Inscrit le</th><th>Emprunts</th><th></th></tr></thead><tbody>
+  {% for a in adherents %}<tr>
+    <td>{{ a.num_adherent }}</td><td><b>{{ a.prenom }} {{ a.nom }}</b></td>
+    <td>{{ a.telephone or '' }}<br><span style="color:var(--brun-doux);font-size:.85rem">{{ a.email or '' }}</span></td>
+    <td><span class="badge b-neutre">{{ a.type_adherent }}</span></td><td>{{ a.date_inscription | fr }}</td>
+    <td><span class="badge {{ 'b-attente' if a.nb_cours else 'b-ok' }}">{{ a.nb_cours }}/3</span></td>
+    <td><a class="btn petit doux" href="{{ url_for('adherent', num=a.num_adherent) }}">Fiche</a></td></tr>
+  {% else %}<tr><td colspan="7" class="vide">Aucun adhérent trouvé.</td></tr>{% endfor %}
+  </tbody></table>
+</div>
+{% endblock %}

@@ -1,0 +1,19 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Lancer le site (Flask)",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/app.py",
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Recréer la base de données",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/init_db.py",
+      "console": "integratedTerminal"
+    }
+  ]
+}

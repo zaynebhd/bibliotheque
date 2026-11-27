@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block titre %}{{ a.prenom }} {{ a.nom }}{% endblock %}
+{% block contenu %}
+<p><a href="{{ url_for('adherents') }}">← Tous les adhérents</a></p>
+<h1>{{ a.prenom }} {{ a.nom }}</h1>
+<p class="sous-titre">Adhérent n° {{ a.num_adherent }} · {{ a.type_adherent }} · {{ cours|length }}/3 emprunts en cours</p>
+
+<form class="carte" method="post" action="{{ url_for('adherent_modifier', num=a.num_adherent) }}">
+  <h2>✏️ Fiche</h2>
+  <div class="champs">
+    <div><label>Nom</label><input name="nom" value="{{ a.nom }}" required></div>
+    <div><label>Prénom</label><input name="prenom" value="{{ a.prenom }}" required></div>
+    <div><label>Téléphone</label><input name="telephone" value="{{ a.telephone or '' }}"></div>
+    <div><label>E-mail</label><input name="email" type="email" value="{{ a.email or '' }}"></div>
+    <div><label>Inscrit le</label><input name="date_inscription" type="date" value="{{ a.date_inscription }}" required></div>
+    <div><label>Type</label><select name="type_adherent">{% for t in ['étudiant','enseignant','autre'] %}<option {{ 'selected' if t == a.type_adherent }}>{{ t }}</option>{% endfor %}</select></div>
+  </div>
+  <p class="ligne" style="margin-bottom:0"><button class="btn">Enregistrer</button>
+    <button class="btn danger" formaction="{{ url_for('adherent_supprimer', num=a.num_adherent) }}" onclick="return confirm('Supprimer cet adhérent ?')">Supprimer</button></p>
+</form>
+
+<div class="carte scroll">
+  <h2>📖 Emprunts en cours</h2>
+  <table><thead><tr><th>Livre</th><th>Exemplaire</th><th>Emprunté le</th><th>À rendre le</th><th></th></tr></thead><tbody>
+  {% for m in cours %}<tr>
+    <td><a href="{{ url_for('livre', isbn=m.isbn) }}">{{ m.titre }}</a></td><td>{{ m.code_exemplaire }}</td><td>{{ m.date_emprunt | fr }}</td>
+    <td>{{ m.date_retour_prevue | fr }} {% if m.date_retour_prevue < today %}<span class="badge b-non">en retard</span>{% endif %}</td>
+    <td><form method="post" action="{{ url_for('emprunt_retour', id_emprunt=m.id_emprunt) }}"><button class="btn petit sauge">Rendre</button></form></td></tr>
+  {% else %}<tr><td colspan="5" class="vide">Aucun emprunt en cours.</td></tr>{% endfor %}
+  </tbody></table>
+</div>
+
+<div class="grille g2">
+  <div class="carte scroll"><h2>🗂️ Historique</h2>
+    <table><thead><tr><th>Livre</th><th>Emprunté</th><th>Rendu</th></tr></thead><tbody>
+    {% for m in histo %}<tr><td>{{ m.titre }}</td><td>{{ m.date_emprunt | fr }}</td><td>{{ m.date_retour_effective | fr }}</td></tr>
+    {% else %}<tr><td colspan="3" class="vide">Pas encore d'historique.</td></tr>{% endfor %}</tbody></table></div>
+  <div class="carte scroll"><h2>🕰️ Réservations</h2>
+    <table><thead><tr><th>Livre</th><th>Demandée</th><th>Statut</th></tr></thead><tbody>
+    {% for r in resa %}<tr><td>{{ r.titre }}</td><td>{{ r.date_demande | fr }}</td>
+      <td><span class="badge {{ 'b-attente' if r.statut == 'en attente' else 'b-ok' if r.statut == 'satisfaite' else 'b-neutre' }}">{{ r.statut }}</span></td></tr>
+    {% else %}<tr><td colspan="3" class="vide">Aucune réservation.</td></tr>{% endfor %}</tbody></table></div>
+</div>
+{% endblock %}

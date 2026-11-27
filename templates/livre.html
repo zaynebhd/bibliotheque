@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block titre %}{{ l.titre }}{% endblock %}
+{% block contenu %}
+<p><a href="{{ url_for('livres') }}">← Tous les livres</a></p>
+<h1>{{ l.titre }}</h1>
+<p class="sous-titre">{{ l.auteurs or 'Auteur non renseigné' }} · {{ l.libelle }} · {{ l.nom_editeur }}</p>
+
+<div class="grille g2">
+  <form class="carte" method="post" action="{{ url_for('livre_modifier', isbn=l.isbn) }}">
+    <h2>✏️ Informations (ISBN {{ l.isbn }})</h2>
+    <div class="champs">
+      <div style="grid-column:1/-1"><label>Titre</label><input name="titre" value="{{ b.titre }}" required></div>
+      <div><label>Année</label><input name="annee" type="number" value="{{ b.annee_publication or '' }}"></div>
+      <div><label>Catégorie</label><select name="id_categorie">{% for c in cats %}<option value="{{ c.id_categorie }}" {{ 'selected' if c.id_categorie == b.id_categorie }}>{{ c.libelle }}</option>{% endfor %}</select></div>
+      <div><label>Éditeur</label><select name="id_editeur">{% for e in eds %}<option value="{{ e.id_editeur }}" {{ 'selected' if e.id_editeur == b.id_editeur }}>{{ e.nom_editeur }}</option>{% endfor %}</select></div>
+    </div>
+    <p class="ligne" style="margin-bottom:0"><button class="btn">Enregistrer</button>
+      <button class="btn danger" formaction="{{ url_for('livre_supprimer', isbn=l.isbn) }}" onclick="return confirm('Supprimer ce livre ?')">Supprimer le livre</button></p>
+  </form>
+
+  <div class="carte">
+    <h2>🖋️ Auteurs</h2>
+    {% for a in auteurs %}
+    <form method="post" action="{{ url_for('livre_auteur_retirer', isbn=l.isbn, id_auteur=a.id_auteur) }}" class="ligne" style="margin-bottom:.4rem">
+      <span class="badge b-neutre">{{ a.prenom }} {{ a.nom }}</span><button class="btn petit danger">Retirer</button></form>
+    {% else %}<p class="vide" style="padding:.5rem">Aucun auteur lié à ce livre.</p>{% endfor %}
+    <form method="post" action="{{ url_for('livre_auteur_ajouter', isbn=l.isbn) }}" class="ligne" style="margin-top:.8rem">
+      <select name="id_auteur" style="flex:1"><option value="">Ajouter un auteur…</option>{% for a in autres %}<option value="{{ a.id_auteur }}">{{ a.prenom }} {{ a.nom }}</option>{% endfor %}</select>
+      <button class="btn sauge">Ajouter</button></form>
+    <p style="font-size:.85rem;color:var(--brun-doux)">Auteur absent de la liste ? <a href="{{ url_for('referentiels') }}">Créez-le ici</a>.</p>
+  </div>
+</div>
+
+<div class="carte scroll">
+  <h2>📦 Exemplaires ({{ exemplaires|length }})</h2>
+  <table><thead><tr><th>Code</th><th>Acquisition</th><th>État physique</th><th>Indisponible</th><th>Situation</th><th></th></tr></thead><tbody>
+  {% for x in exemplaires %}<tr>
+    <form method="post" action="{{ url_for('exemplaire_modifier', code=x.code_exemplaire) }}">
+    <td><b>{{ x.code_exemplaire }}</b></td><td>{{ x.date_acquisition | fr }}</td>
+    <td><select name="etat" style="width:auto">{% for e in ['bon','usé','endommagé'] %}<option {{ 'selected' if e == x.etat_physique }}>{{ e }}</option>{% endfor %}</select></td>
+    <td><label class="case"><input type="checkbox" name="indisponible" {{ 'checked' if x.indisponible }}> déclaré indisponible</label></td>
+    <td>{% if x.indisponible %}<span class="badge b-neutre">Hors service</span>
+        {% elif x.libre %}<span class="badge b-ok">Disponible</span>
+        {% else %}<span class="badge b-attente">Emprunté par {{ x.emprunte_par }}</span>{% endif %}</td>
+    <td class="ligne"><button class="btn petit sauge">Mettre à jour</button>
+      <button class="btn petit danger" formaction="{{ url_for('exemplaire_supprimer', code=x.code_exemplaire) }}" onclick="return confirm('Supprimer cet exemplaire ?')">✕</button></td>
+    </form></tr>
+  {% else %}<tr><td colspan="6" class="vide">Aucun exemplaire pour le moment.</td></tr>{% endfor %}
+  </tbody></table>
+  <form method="post" action="{{ url_for('exemplaire_ajouter', isbn=l.isbn) }}" style="margin-top:1rem;border-top:2px dashed var(--ligne);padding-top:1rem">
+    <div class="champs">
+      <div><label>Nouveau code *</label><input name="code" placeholder="ex : E011" required></div>
+      <div><label>Date d'acquisition</label><input type="date" name="date_acquisition" value="{{ today }}"></div>
+      <div><label>État</label><select name="etat"><option>bon</option><option>usé</option><option>endommagé</option></select></div>
+      <div><label class="case"><input type="checkbox" name="indisponible"> indisponible</label></div>
+      <div><button class="btn">Ajouter l'exemplaire</button></div>
+    </div>
+  </form>
+</div>
+
+{% if attente %}
+<div class="carte"><h2>🕰️ Réservations en attente</h2>
+  <table><thead><tr><th>Demandée le</th><th>Adhérent</th></tr></thead><tbody>
+  {% for r in attente %}<tr><td>{{ r.date_demande | fr }}</td><td>{{ r.prenom }} {{ r.nom }}</td></tr>{% endfor %}</tbody></table></div>
+{% endif %}
+{% endblock %}

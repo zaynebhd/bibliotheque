@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block titre %}Statistiques{% endblock %}
+{% block contenu %}
+<h1>Statistiques</h1>
+<p class="sous-titre">Quels livres ont la cote ? Nombre total d'emprunts enregistrés par titre.</p>
+
+<div class="carte">
+  <h2>🏆 Emprunts par livre</h2>
+  {% for r in rows %}
+  <div class="barre-stat">
+    <a href="{{ url_for('livre', isbn=r.isbn) }}">{{ r.titre }}</a>
+    <div class="piste"><i style="width: {{ (r.nb / maxi * 100) | round | int }}%"></i></div>
+    <b>{{ r.nb }}</b>
+  </div>{% endfor %}
+</div>
+
+<div class="carte">
+  <h2>🚫 Livres sans exemplaire disponible</h2>
+  {% if sans %}<p class="ligne">{% for l in sans %}<a class="badge b-non" href="{{ url_for('livre', isbn=l.isbn) }}">{{ l.titre }}</a>{% endfor %}</p>
+  {% else %}<p class="vide">Tous les livres ont au moins un exemplaire libre.</p>{% endif %}
+</div>
+{% endblock %}

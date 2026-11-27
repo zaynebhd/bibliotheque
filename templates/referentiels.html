@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block titre %}Auteurs & éditeurs{% endblock %}
+{% block contenu %}
+<h1>Auteurs, éditeurs &amp; catégories</h1>
+<p class="sous-titre">Les listes de référence utilisées par les fiches des livres.</p>
+
+<div class="grille g2">
+  <div class="carte">
+    <h2>🖋️ Auteurs</h2>
+    <form method="post" class="ligne" style="margin-bottom:1rem"><input type="hidden" name="quoi" value="auteur">
+      <input name="prenom" placeholder="Prénom" required style="flex:1"><input name="nom" placeholder="Nom" required style="flex:1"><button class="btn sauge">Ajouter</button></form>
+    <table><tbody>{% for a in auteurs %}<tr><td>{{ a.prenom }} {{ a.nom }}</td><td><span class="badge b-neutre">{{ a.nb }} livre{{ 's' if a.nb > 1 }}</span></td></tr>{% endfor %}</tbody></table>
+  </div>
+  <div>
+    <div class="carte">
+      <h2>🏛️ Éditeurs</h2>
+      <form method="post" class="ligne" style="margin-bottom:1rem"><input type="hidden" name="quoi" value="editeur">
+        <input name="nom" placeholder="Nom de l'éditeur" required style="flex:1"><button class="btn sauge">Ajouter</button></form>
+      <table><tbody>{% for e in editeurs %}<tr><td>{{ e.nom_editeur }}</td><td><span class="badge b-neutre">{{ e.nb }} livre{{ 's' if e.nb > 1 }}</span></td></tr>{% endfor %}</tbody></table>
+    </div>
+    <div class="carte">
+      <h2>🗂️ Catégories</h2>
+      <form method="post" class="ligne" style="margin-bottom:1rem"><input type="hidden" name="quoi" value="categorie">
+        <input name="nom" placeholder="Nouvelle catégorie" required style="flex:1"><button class="btn sauge">Ajouter</button></form>
+      <table><tbody>{% for c in cats %}<tr><td>{{ c.libelle }}</td><td><span class="badge b-neutre">{{ c.nb }} livre{{ 's' if c.nb > 1 }}</span></td></tr>{% endfor %}</tbody></table>
+    </div>
+  </div>
+</div>
+{% endblock %}

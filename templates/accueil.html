@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block contenu %}
+<div class="bienvenue">
+  <h1>Bienvenue au Coin Lecture ☕</h1>
+  <p class="sous-titre" style="margin:0">Un petit endroit douillet pour suivre vos livres, vos adhérents et vos emprunts. Nous sommes le {{ today | fr }}.</p>
+  <p style="margin:1rem 0 0" class="ligne">
+    <a class="btn" href="{{ url_for('catalogue') }}">🔍 Chercher un livre</a>
+    <a class="btn sauge" href="{{ url_for('emprunts') }}">📖 Enregistrer un emprunt</a>
+    <a class="btn doux" href="{{ url_for('adherents') }}">🙋 Inscrire un adhérent</a>
+  </p>
+</div>
+
+<div class="grille g4" style="margin-bottom:1.6rem">
+  <div class="chiffre"><b>{{ s.livres }}</b><span>titres au catalogue</span></div>
+  <div class="chiffre c-sauge"><b>{{ s.dispo }} / {{ s.exemplaires }}</b><span>exemplaires disponibles</span></div>
+  <div class="chiffre"><b>{{ s.adherents }}</b><span>adhérents</span></div>
+  <div class="chiffre c-miel"><b>{{ s.cours }}</b><span>emprunts en cours</span></div>
+  <div class="chiffre c-terre"><b>{{ s.retards }}</b><span>emprunts en retard</span></div>
+  <div class="chiffre"><b>{{ s.attente }}</b><span>réservations en attente</span></div>
+</div>
+
+<div class="grille g2">
+  <div class="carte">
+    <h2>⏰ Retards à relancer</h2>
+    {% if retards %}
+    <table><thead><tr><th>Adhérent</th><th>Livre</th><th>Retard</th></tr></thead><tbody>
+      {% for r in retards %}<tr>
+        <td><a href="{{ url_for('adherent', num=r.num_adherent) }}">{{ r.prenom }} {{ r.nom }}</a></td>
+        <td>{{ r.titre }}</td><td><span class="badge b-non">{{ r.jours }} j</span></td></tr>{% endfor %}
+    </tbody></table>
+    <p style="margin:.8rem 0 0"><a href="{{ url_for('retards') }}">Voir tous les retards →</a></p>
+    {% else %}<p class="vide">Aucun retard, tout est en ordre 🌿</p>{% endif %}
+  </div>
+  <div class="carte">
+    <h2>📖 Derniers emprunts</h2>
+    <table><thead><tr><th>Date</th><th>Adhérent</th><th>Livre</th></tr></thead><tbody>
+      {% for m in derniers %}<tr><td>{{ m.date_emprunt | fr }}</td><td>{{ m.prenom }} {{ m.nom }}</td><td>{{ m.titre }}</td></tr>{% endfor %}
+    </tbody></table>
+  </div>
+</div>
+{% endblock %}

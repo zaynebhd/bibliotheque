@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block titre %}Le Coin Lecture{% endblock %} · Bibliothèque</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<header>
+  <div class="barre">
+    <a class="logo" href="{{ url_for('accueil') }}">📚 Le Coin Lecture</a>
+    <nav>
+      {% set ep = request.endpoint %}
+      <a href="{{ url_for('accueil') }}" class="{{ 'actif' if ep == 'accueil' }}">Accueil</a>
+      <a href="{{ url_for('catalogue') }}" class="{{ 'actif' if ep == 'catalogue' }}">Catalogue</a>
+      <a href="{{ url_for('livres') }}" class="{{ 'actif' if ep in ('livres', 'livre') }}">Livres</a>
+      <a href="{{ url_for('adherents') }}" class="{{ 'actif' if ep in ('adherents', 'adherent') }}">Adhérents</a>
+      <a href="{{ url_for('emprunts') }}" class="{{ 'actif' if ep == 'emprunts' }}">Emprunts</a>
+      <a href="{{ url_for('reservations') }}" class="{{ 'actif' if ep == 'reservations' }}">Réservations</a>
+      <a href="{{ url_for('retards') }}" class="{{ 'actif' if ep == 'retards' }}">Retards{% if nb_retards %}<span class="pastille">{{ nb_retards }}</span>{% endif %}</a>
+      <a href="{{ url_for('statistiques') }}" class="{{ 'actif' if ep == 'statistiques' }}">Statistiques</a>
+      <a href="{{ url_for('referentiels') }}" class="{{ 'actif' if ep == 'referentiels' }}">Auteurs &amp; éditeurs</a>
+    </nav>
+  </div>
+</header>
+<main>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for cat, m in messages %}<div class="msg {{ cat }}">{{ m }}</div>{% endfor %}
+  {% endwith %}
+  {% block contenu %}{% endblock %}
+</main>
+<footer>Fait avec ♥ pour le mini-projet « Gestion d'une bibliothèque » · ISSAT Sousse · {{ today | fr }}</footer>
+</body>
+</html>

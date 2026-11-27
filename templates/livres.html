@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block titre %}Livres{% endblock %}
+{% block contenu %}
+<h1>Gestion des livres</h1>
+<p class="sous-titre">Ajoutez un titre, puis ouvrez sa fiche pour gérer ses auteurs et ses exemplaires.</p>
+
+<form class="carte" method="post">
+  <h2>➕ Nouveau livre</h2>
+  <div class="champs">
+    <div><label>ISBN *</label><input name="isbn" required></div>
+    <div><label>Titre *</label><input name="titre" required></div>
+    <div><label>Année</label><input name="annee" type="number" min="1000" max="2100"></div>
+    <div><label>Catégorie *</label><select name="id_categorie" required>{% for c in cats %}<option value="{{ c.id_categorie }}">{{ c.libelle }}</option>{% endfor %}</select></div>
+    <div><label>Éditeur *</label><select name="id_editeur" required>{% for e in eds %}<option value="{{ e.id_editeur }}">{{ e.nom_editeur }}</option>{% endfor %}</select></div>
+    <div><button class="btn">Ajouter</button></div>
+  </div>
+</form>
+
+<div class="carte scroll">
+  <table><thead><tr><th>ISBN</th><th>Titre</th><th>Auteurs</th><th>Catégorie</th><th>Éditeur</th><th>Année</th><th>Exemplaires</th><th></th></tr></thead><tbody>
+  {% for l in livres %}<tr>
+    <td>{{ l.isbn }}</td><td><b>{{ l.titre }}</b></td><td>{{ l.auteurs or '—' }}</td><td>{{ l.libelle }}</td><td>{{ l.nom_editeur }}</td><td>{{ l.annee_publication or '—' }}</td>
+    <td><span class="badge {{ 'b-ok' if l.nb_dispo else 'b-non' }}">{{ l.nb_dispo }}/{{ l.nb_ex }} libres</span></td>
+    <td><a class="btn petit doux" href="{{ url_for('livre', isbn=l.isbn) }}">Ouvrir</a></td></tr>{% endfor %}
+  </tbody></table>
+</div>
+{% endblock %}

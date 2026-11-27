@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block titre %}Réservations{% endblock %}
+{% block contenu %}
+<h1>Réservations</h1>
+<p class="sous-titre">On réserve un livre (pas un exemplaire) quand aucun exemplaire n'est libre. Une seule réservation en attente par adhérent et par livre.</p>
+
+<form class="carte" method="post">
+  <h2>🕰️ Nouvelle réservation</h2>
+  <div class="champs">
+    <div><label>Adhérent *</label><select name="num_adherent" required>
+      {% for a in adherents %}<option value="{{ a.num_adherent }}">{{ a.nom }} {{ a.prenom }}</option>{% endfor %}</select></div>
+    <div><label>Livre sans exemplaire libre *</label><select name="isbn" required>
+      {% for l in sans_dispo %}<option value="{{ l.isbn }}">{{ l.titre }}</option>{% endfor %}</select></div>
+    <div><button class="btn" {{ 'disabled' if not sans_dispo }}>Réserver</button></div>
+  </div>
+  {% if not sans_dispo %}<p class="vide" style="padding:.5rem 0 0">Tous les livres ont un exemplaire libre : inutile de réserver 🎉</p>{% endif %}
+</form>
+
+<form class="carte" method="get"><div class="ligne">
+  <select name="f" style="width:auto">{% for k in ['en attente','satisfaite','annulée','toutes'] %}<option {{ 'selected' if f == k }}>{{ k }}</option>{% endfor %}</select>
+  <select name="isbn" style="width:auto;max-width:320px"><option value="">Tous les livres</option>
+    {% for l in livres_tous %}<option value="{{ l.isbn }}" {{ 'selected' if isbn == l.isbn }}>{{ l.titre }}</option>{% endfor %}</select>
+  <button class="btn">Filtrer</button></div></form>
+
+<div class="carte scroll">
+  <table><thead><tr><th>N°</th><th>Demandée le</th><th>Adhérent</th><th>Livre</th><th>Statut</th><th></th></tr></thead><tbody>
+  {% for r in rows %}<tr>
+    <td>{{ r.id_reservation }}</td><td>{{ r.date_demande | fr }}</td>
+    <td><a href="{{ url_for('adherent', num=r.num_adherent) }}">{{ r.prenom }} {{ r.nom }}</a></td>
+    <td><a href="{{ url_for('livre', isbn=r.isbn) }}">{{ r.titre }}</a></td>
+    <td><span class="badge {{ 'b-attente' if r.statut == 'en attente' else 'b-ok' if r.statut == 'satisfaite' else 'b-neutre' }}">{{ r.statut }}</span></td>
+    <td class="ligne">{% if r.statut == 'en attente' %}
+      <form method="post" action="{{ url_for('reservation_statut', rid=r.id_reservation, action='satisfaire') }}"><button class="btn petit sauge">Satisfaite</button></form>
+      <form method="post" action="{{ url_for('reservation_statut', rid=r.id_reservation, action='annuler') }}"><button class="btn petit danger">Annuler</button></form>{% endif %}</td></tr>
+  {% else %}<tr><td colspan="6" class="vide">Aucune réservation.</td></tr>{% endfor %}
+  </tbody></table>
+</div>
+{% endblock %}

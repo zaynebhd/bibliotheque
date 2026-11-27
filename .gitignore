@@ -1,0 +1,12 @@
+# Environnement Python
+.venv/
+__pycache__/
+*.pyc
+
+# Base générée par init_db.py
+bibliotheque.db
+
+# Éditeurs / système
+.idea/
+.DS_Store
+Thumbs.db
